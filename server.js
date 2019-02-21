@@ -77,6 +77,7 @@ function getLocation(query) {
   // CREATE the query string to check for the existence of the location
   const SQL = `SELECT * FROM locations WHERE search_query=$1;`;
   const values = [query];
+  console.log('Beginning', SQL);
 
   // Make the query of the database
   return client.query(SQL, values)
@@ -88,6 +89,7 @@ function getLocation(query) {
 
         // Otherwise get the location information from the Google API
       } else {
+        console.log('New...!');
         const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
 
         return superagent.get(url)
