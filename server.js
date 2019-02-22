@@ -55,12 +55,10 @@ function Weather(day) {
 }
 
 function Meetup(meetup) {
-  this.tableName = 'meetups';
   this.link = meetup.link;
   this.name = meetup.group.name;
   this.creation_date = new Date(meetup.group.created).toString().slice(0, 15);
   this.host = meetup.group.who;
-  this.created_at = Date.now();
 }
 
 // *********************
@@ -155,12 +153,6 @@ function getWeather(request, response) {
               newValues.push(request.query.data.id);
               // Add the record to the database
               return client.query(newSQL, newValues)
-                .then(result => {
-                  console.log('155', result.rows);
-                  // Attach the ID of the newly created record to the instance of location
-                  // This will be used to connect the location to the other databases
-                  console.log('158', result.rows[0].id);
-                })
                 .catch(console.error);
             })
             response.send(weatherSummaries);
@@ -199,9 +191,7 @@ function getMeetups(request, response) {
               newValues.push(request.query.data.id);
               // Add the record to the database
               return client.query(newSQL, newValues)
-              /*
-              ERRONEOUSLY COPIED CODE FROM getLocation() EXCUDED HERE
-              */
+                .catch(console.error);
             })
             response.send(meetups);
           })
