@@ -37,11 +37,14 @@ app.get('/weather', getWeather);
 
 app.get('/meetups', getMeetups);
 
-// TODO Create route for Trails Project API
-// app.get('/trails', getTrails);
-
-// Route for Movies DB API
+// Route for The Movie DB API
 app.get('/movies', getMovies);
+
+// Route for Trails Project API
+app.get('/trails', getTrails);
+
+// TODO Route for Yelp Fusion API
+// app.get('/yelp', getYelp);
 
 // Starts server listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
@@ -231,7 +234,7 @@ function getMovies(request, response) {
       if (result.rowCount > 0) {
         console.log('Movies from SQL');
         response.send(result.rows);
-      // Otherwise get location info from Movies Database API
+      // Otherwise get location info from Movie Database API
       } else {
         const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_DATABASE_API_KEY}&query=${request.query.data.search_query}&include_adult=false`;
         
@@ -256,3 +259,10 @@ function getMovies(request, response) {
       }
     })
 }
+
+function getTrails(request, response) {
+  
+}
+
+// TODO Add function getYelp()
+
