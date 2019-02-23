@@ -281,25 +281,35 @@ function getTrails(request, response) {
 
   // Query the DB
   return client.query(SQL, values)
-  .then(result => {
-    // Check to see if location was found and return results
-    if (result.rowCount > 0) {
-      console.log('Trails from SQL');
-      response.send(result.rows);
-    // Otherwise get location info from Hiking Project API
-    } else {
-      const url = ``; // TODO ADD URL FOR API CALL
+    .then(result => {
+      // Check to see if location was found and return results
+      if (result.rowCount > 0) {
+        console.log('Trails from SQL');
+        response.send(result.rows);
+      // Otherwise get location info from Hiking Project API
+      } else {
+        const url = `https://www.hikingproject.com/data/get-trails?lat=${request.query.data.latitude}&lon=${request.query.data.longitude}&maxDistance=10&key=${process.env.HIKING_PROJECT_API_KEY}`;
 
-      superagent.get(url)
-      .then(result => {
-        const trails = result.body.trails.map(trail => {
-          const hike = new Trail(trail);
-          return hike;
-        });
-
-
-
-    }
+        superagent.get(url)
+          .then(result => {
+            const trails = result.body.trails.map(trail => {
+              const hike = new Trail(trail);
+              return hike;
+            });
+            let newSQL = `INSERT INTO trails(name, location, length, stars, star_votes, summary, trail_url, condition_date, condition_time, conditions, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);`;
+            console.log('trails', trails); // Array of objects
+            trails.forEach(trail => {
+              let newValues = Object.values(trail);
+              newValues.push(request.query.data.id);
+              // Add the record to the database
+              return client.query(newSQL, newValues)
+                .catch(console.error);
+            })
+            response.send(trails);
+          })
+          .catch(error => handleError(error, response));
+      }
+    })  
 }
 
 // TODO Add function getYelp()
