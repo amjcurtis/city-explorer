@@ -20,7 +20,10 @@ const client = new pg.Client(process.env.DATABASE_URL);
 client.connect();
 client.on('error', err => console.error(err));
 
+// *********************
 // API Routes
+// *********************
+
 app.get('/location', (request, response) => {
   getLocation(request.query.data)
     .then(location => {
@@ -37,8 +40,8 @@ app.get('/meetups', getMeetups);
 // TODO Create route for Trails Project API
 // app.get('/trails', getTrails);
 
-// TODO Create route for Movies DB API
-// app.get('/movies', getMovies);
+// Route for Movies DB API
+app.get('/movies', getMovies);
 
 // Starts server listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
@@ -73,10 +76,9 @@ function Movie(movie) {
   this.total_votes = movie.vote_count;
   this.average_votes = movie.vote_average;
   this.popularity = movie.popularity;
-  this.image_url = `${request.query.data.search_query}`;
-  this.overview =
+  this.image_url = `https://image.tmdb.org/t/p/original${movie.poster_path}`;
+  this.overview = movie.overview;
 }
-// request.query.data.search_query
 
 // *********************
 // HELPER FUNCTIONS
@@ -152,7 +154,7 @@ function getWeather(request, response) {
       if (result.rowCount > 0) {
         console.log('From SQL');
         response.send(result.rows); // Removed '[0]'
-      // Otherwise get the location information from Dark Sky
+      // Otherwise get the location information from Dark Sky API
       } else {
         const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
 
@@ -165,7 +167,7 @@ function getWeather(request, response) {
             });
             let newSQL = `INSERT INTO weathers(forecast, time, location_id) VALUES ($1, $2, $3);`;
             console.log('weatherSummaries', weatherSummaries) // Array of objects
-            weatherSummaries.forEach( summary => {
+            weatherSummaries.forEach(summary => {
               let newValues = Object.values(summary);
               newValues.push(request.query.data.id);
               // Add the record to the database
@@ -189,11 +191,11 @@ function getMeetups(request, response) {
     .then(result => {
       // Check to see if location was found and return results
       if (result.rowCount > 0) {
-        console.log('From SQL');
+        console.log('Meetups from SQL');
         response.send(result.rows); // Removed '[0]'
-      // Otherwise get location info from Meetups
+      // Otherwise get location info from Meetups API
       } else {
-        const url = `https://api.meetup.com/find/upcoming_events?&sign=true&photo-host=public&lon=${request.query.data.longitude}&page=20&lat=${request.query.data.latitude}&key=${process.env.MEETUP_API_KEY}`
+        const url = `https://api.meetup.com/find/upcoming_events?&sign=true&photo-host=public&lon=${request.query.data.longitude}&page=20&lat=${request.query.data.latitude}&key=${process.env.MEETUP_API_KEY}`;
 
         superagent.get(url)
           .then(result => {
@@ -203,7 +205,7 @@ function getMeetups(request, response) {
             });
             let newSQL = `INSERT INTO meetups(link, name, creation_date, host, location_id) VALUES ($1, $2, $3, $4, $5);`;
             console.log('meetups', meetups); // Array of objects
-            meetups.forEach( meetup => {
+            meetups.forEach(meetup => {
               let newValues = Object.values(meetup);
               newValues.push(request.query.data.id);
               // Add the record to the database
@@ -217,6 +219,40 @@ function getMeetups(request, response) {
     })
 }
 
-// function getMovies(request, response) {
-//   https://api.themoviedb.org/3/movie/76341?api_key={api_key}
-// }
+function getMovies(request, response) {
+  // Create query string to check for existence of location in SQL
+  const SQL = `SELECT * FROM movies WHERE location_id=$1;`;
+  const values = [request.query.data.id];
+
+  // Query the DB
+  return client.query(SQL, values)
+    .then(result => {
+      // Check to see if location was found and return results
+      if (result.rowCount > 0) {
+        console.log('Movies from SQL');
+        response.send(result.rows);
+      // Otherwise get location info from Movies Database API
+      } else {
+        const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_DATABASE_API_KEY}&query=${request.query.data.search_query}&include_adult=false`;
+        
+        superagent.get(url)
+          .then(result => {
+            const movies = result.body.results.map(movie => {
+              const movieEntry = new Movie(movie);
+              return movieEntry;
+            });
+            let newSQL = `INSERT INTO movies(title, released_on, total_votes, average_votes, popularity, image_url, overview, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`;
+            console.log('movies', movies); // Array of objects
+            movies.forEach(movie => {
+              let newValues = Object.values(movie);
+              newValues.push(request.query.data.id);
+              // Add the record to the database
+              return client.query(newSQL, newValues)
+                .catch(console.error);
+            })
+            response.send(movies);
+          })
+          .catch(error => handleError(error, response));
+      }
+    })
+}
