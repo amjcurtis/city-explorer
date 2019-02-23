@@ -83,16 +83,16 @@ function Movie(movie) {
 }
 
 function Trail(trail) {
-  this.trail_url = trail.
-  this.name = 
-  this.location =
-  this.length =
-  this.condition_date =
-  this.condition_time =
-  this.conditions =
-  this.stars =
-  this.star_votes =
-  this.summary =
+  this.name = trail.name;
+  this.location = trail.location;
+  this.length = trail.length;
+  this.stars = trail.stars;
+  this.star_votes = trail.starVotes;
+  this.summary = trail.summary;
+  this.trail_url = trail.url;
+  this.condition_date = trail.conditionDate.slice(0, 10); // SLICE API'S "conditionDate" PROPERTY
+  this.condition_time = trail.conditionDate.slice(11, 19); // SLICE API'S "conditionDate" PROPERTY
+  this.conditions = trail.conditionDetails;
 }
 
 // TODO Add Yelp constructor
@@ -296,7 +296,7 @@ function getTrails(request, response) {
           const hike = new Trail(trail);
           return hike;
         });
-        
+
 
 
     }
