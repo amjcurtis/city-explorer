@@ -72,7 +72,6 @@ function Meetup(meetup) {
   this.host = meetup.group.who;
 }
 
-//TODO Movie DB constructor
 function Movie(movie) {
   this.title = movie.title;
   this.released_on = movie.release_date;
@@ -82,6 +81,21 @@ function Movie(movie) {
   this.image_url = `https://image.tmdb.org/t/p/original${movie.poster_path}`;
   this.overview = movie.overview;
 }
+
+function Trail(trail) {
+  this.name = trail.name;
+  this.location = trail.location;
+  this.length = trail.length;
+  this.stars = trail.stars;
+  this.star_votes = trail.starVotes;
+  this.summary = trail.summary;
+  this.trail_url = trail.url;
+  this.condition_date = trail.conditionDate.slice(0, 10); // SLICE API'S "conditionDate" PROPERTY
+  this.condition_time = trail.conditionDate.slice(11, 19); // SLICE API'S "conditionDate" PROPERTY
+  this.conditions = trail.conditionDetails;
+}
+
+// TODO Add Yelp constructor
 
 // *********************
 // HELPER FUNCTIONS
@@ -261,7 +275,41 @@ function getMovies(request, response) {
 }
 
 function getTrails(request, response) {
-  
+  // Create query string to check for existence of location in SQL
+  const SQL = `SELECT * FROM trails WHERE location_id=$1;`;
+  const values = [request.query.data.id];
+
+  // Query the DB
+  return client.query(SQL, values)
+    .then(result => {
+      // Check to see if location was found and return results
+      if (result.rowCount > 0) {
+        console.log('Trails from SQL');
+        response.send(result.rows);
+      // Otherwise get location info from Hiking Project API
+      } else {
+        const url = `https://www.hikingproject.com/data/get-trails?lat=${request.query.data.latitude}&lon=${request.query.data.longitude}&maxDistance=10&key=${process.env.HIKING_PROJECT_API_KEY}`;
+
+        superagent.get(url)
+          .then(result => {
+            const trails = result.body.trails.map(trail => {
+              const hike = new Trail(trail);
+              return hike;
+            });
+            let newSQL = `INSERT INTO trails(name, location, length, stars, star_votes, summary, trail_url, condition_date, condition_time, conditions, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`;
+            console.log('trails', trails); // Array of objects
+            trails.forEach(trail => {
+              let newValues = Object.values(trail);
+              newValues.push(request.query.data.id);
+              // Add the record to the database
+              return client.query(newSQL, newValues)
+                .catch(console.error);
+            })
+            response.send(trails);
+          })
+          .catch(error => handleError(error, response));
+      }
+    })  
 }
 
 // TODO Add function getYelp()
