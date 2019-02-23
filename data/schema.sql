@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS trails (
   name VARCHAR(255),
   location VARCHAR(255),
   length NUMERIC(3, 1),
-  stars NUMERIC(1, 1),
+  stars NUMERIC(2, 1),
   star_votes INTEGER NOT NULL,
   summary VARCHAR(1000),
   trail_url VARCHAR(255),

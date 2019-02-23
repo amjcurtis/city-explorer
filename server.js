@@ -296,7 +296,7 @@ function getTrails(request, response) {
               const hike = new Trail(trail);
               return hike;
             });
-            let newSQL = `INSERT INTO trails(name, location, length, stars, star_votes, summary, trail_url, condition_date, condition_time, conditions, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);`;
+            let newSQL = `INSERT INTO trails(name, location, length, stars, star_votes, summary, trail_url, condition_date, condition_time, conditions, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`;
             console.log('trails', trails); // Array of objects
             trails.forEach(trail => {
               let newValues = Object.values(trail);
