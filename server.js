@@ -72,7 +72,6 @@ function Meetup(meetup) {
   this.host = meetup.group.who;
 }
 
-//TODO Movie DB constructor
 function Movie(movie) {
   this.title = movie.title;
   this.released_on = movie.release_date;
@@ -82,6 +81,21 @@ function Movie(movie) {
   this.image_url = `https://image.tmdb.org/t/p/original${movie.poster_path}`;
   this.overview = movie.overview;
 }
+
+function Trail(trail) {
+  this.trail_url = trail.
+  this.name = 
+  this.location =
+  this.length =
+  this.condition_date =
+  this.condition_time =
+  this.conditions =
+  this.stars =
+  this.star_votes =
+  this.summary =
+}
+
+// TODO Add Yelp constructor
 
 // *********************
 // HELPER FUNCTIONS
@@ -261,7 +275,31 @@ function getMovies(request, response) {
 }
 
 function getTrails(request, response) {
-  
+  // Create query string to check for existence of location in SQL
+  const SQL = `SELECT * FROM trails WHERE location_id=$1;`;
+  const values = [request.query.data.id];
+
+  // Query the DB
+  return client.query(SQL, values)
+  .then(result => {
+    // Check to see if location was found and return results
+    if (result.rowCount > 0) {
+      console.log('Trails from SQL');
+      response.send(result.rows);
+    // Otherwise get location info from Hiking Project API
+    } else {
+      const url = ``; // TODO ADD URL FOR API CALL
+
+      superagent.get(url)
+      .then(result => {
+        const trails = result.body.trails.map(trail => {
+          const hike = new Trail(trail);
+          return hike;
+        });
+        
+
+
+    }
 }
 
 // TODO Add function getYelp()
