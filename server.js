@@ -34,6 +34,12 @@ app.get('/weather', getWeather);
 
 app.get('/meetups', getMeetups);
 
+// TODO Create route for Trails Project API
+// app.get('/trails', getTrails);
+
+// TODO Create route for Movies DB API
+// app.get('/movies', getMovies);
+
 // Starts server listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
@@ -59,6 +65,18 @@ function Meetup(meetup) {
   this.creation_date = new Date(meetup.group.created).toString().slice(0, 15);
   this.host = meetup.group.who;
 }
+
+//TODO Movie DB constructor
+function Movie(movie) {
+  this.title = movie.title;
+  this.released_on = movie.release_date;
+  this.total_votes = movie.vote_count;
+  this.average_votes = movie.vote_average;
+  this.popularity = movie.popularity;
+  this.image_url = `${request.query.data.search_query}`;
+  this.overview =
+}
+// request.query.data.search_query
 
 // *********************
 // HELPER FUNCTIONS
@@ -185,7 +203,7 @@ function getMeetups(request, response) {
             });
             let newSQL = `INSERT INTO meetups(link, name, creation_date, host, location_id) VALUES ($1, $2, $3, $4, $5);`;
             console.log('meetups', meetups); // Array of objects
-            meetups.forEach(meetup => {
+            meetups.forEach( meetup => {
               let newValues = Object.values(meetup);
               newValues.push(request.query.data.id);
               // Add the record to the database
@@ -198,3 +216,7 @@ function getMeetups(request, response) {
       }
     })
 }
+
+// function getMovies(request, response) {
+//   https://api.themoviedb.org/3/movie/76341?api_key={api_key}
+// }
