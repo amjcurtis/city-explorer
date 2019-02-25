@@ -96,6 +96,9 @@ function Trail(trail) {
 }
 
 // TODO Add Yelp constructor
+function Yelp(yelp) {
+
+}
 
 // *********************
 // HELPER FUNCTIONS
@@ -313,4 +316,23 @@ function getTrails(request, response) {
 }
 
 // TODO Add function getYelp()
+function getYelp(request, response) {
+  // Create query string to check for existence of location in SQL
+  const SQL = `SELECT * FROM yelp WHERE location_id=$1;`;
+  const values = [request.query.data.id];
+
+  //Query the DB
+  return client.query(SQL, values)
+    .then(result => {
+      // Check to see if location was found and return results
+      if (result.rowCount > 0) {
+        console.log('Yelp data from SQL');
+        response.send(result.rows);
+      // Otherwise get location info from Yelp API
+      } else {
+        const = url ``;
+
+        
+      }
+}
 
