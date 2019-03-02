@@ -24,7 +24,9 @@ For this project I used the following technologies:
 ## Change Log
 
 `02-19-2019 10:40am` - Filled out initial server variables and helper functions. Tested that server works.
+
 `02-20-2019 9:00am-1:30pm` - Set up DB, added Google Geocoding and Dark Sky API integration.
+
 `02-22-2019 9:00am-1:30pm` - Added Meetups, Movie Database, and Hiking Project API integration.
 
 ## Credits and Collaborations
