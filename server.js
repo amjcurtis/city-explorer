@@ -44,7 +44,7 @@ app.get('/movies', getMovies);
 app.get('/trails', getTrails);
 
 // TODO Route for Yelp Fusion API
-// app.get('/yelp', getYelp);
+app.get('/yelp', getYelp);
 
 // Starts server listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
@@ -96,9 +96,13 @@ function Trail(trail) {
 }
 
 // TODO Add Yelp constructor
-// function Yelp(yelp) {
-
-// }
+function Yelp(biz) {
+  this.name = biz.name;
+  this.url = biz.url;
+  this.rating = biz.rating;
+  this.price = biz.price;
+  this.image_url = biz.image_url;
+}
 
 // *********************
 // HELPER FUNCTIONS
@@ -236,7 +240,7 @@ function getMeetups(request, response) {
           })
           .catch(error => handleError(error, response));
       }
-    })
+    });
 }
 
 function getMovies(request, response) {
@@ -316,23 +320,42 @@ function getTrails(request, response) {
 }
 
 // TODO Add function getYelp()
-// function getYelp(request, response) {
-//   // Create query string to check for existence of location in SQL
-//   const SQL = `SELECT * FROM yelp WHERE location_id=$1;`;
-//   const values = [request.query.data.id];
+function getYelp(request, response) {
+  // Create query string to check for existence of location in SQL
+  const SQL = `SELECT * FROM yelp WHERE location_id=$1;`;
+  const values = [request.query.data.id];
 
-//   //Query the DB
-//   return client.query(SQL, values)
-//     .then(result => {
-//       // Check to see if location was found and return results
-//       if (result.rowCount > 0) {
-//         console.log('Yelp data from SQL');
-//         response.send(result.rows);
-//       // Otherwise get location info from Yelp API
-//       } else {
-//         const = url ``;
+  //Query the DB
+  return client.query(SQL, values)
+    .then(result => {
+      // Check to see if location was found and return results
+      if (result.rowCount > 0) {
+        console.log('Yelp data from SQL');
+        response.send(result.rows);
+      // Otherwise get location info from Yelp API
+      } else {
+        const url = `https://api.yelp.com/v3/businesses/search?location=${request.query.data.search_query}`;
 
-
-//       }
-// }
+        superagent.get(url)
+          .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
+          .then(result => {
+            const yelps = result.body.businesses.map(biz => {
+              const review = new Yelp(biz);
+              return review;
+            });
+            let newSQL = `INSERT INTO yelps(name, url, rating, price, image_url, location_id) VALUES ($1, $2, $3, $4, $5, $6);`;
+            console.log('yelps', yelps); // Array of objects
+            yelps.forEach(yelp => {
+              let newValues = Object.values(yelp);
+              newValues.push(request.query.data.id);
+              // Add record to DB
+              return client.query(newSQL, newValues)
+                .catch(console.error);
+            })
+            response.send(yelps);
+          })
+          .catch(error => handleError(error, response));
+      }
+    });
+}
 

@@ -1,4 +1,4 @@
-DROP TABLE locations, weathers, meetups, movies, trails; -- TODO Add yelp
+DROP TABLE locations, weathers, meetups, movies, trails, yelps;
 
 CREATE TABLE IF NOT EXISTS locations (
   id SERIAL PRIMARY KEY,
@@ -51,6 +51,17 @@ CREATE TABLE IF NOT EXISTS trails (
   condition_date CHAR(10),
   condition_time CHAR(8),
   conditions VARCHAR(255),
+  location_id INTEGER NOT NULL,
+  FOREIGN KEY (location_id) REFERENCES locations (id)
+);
+
+CREATE TABLE IF NOT EXISTS yelps (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255,)
+  url VARCHAR(255),
+  rating NUMERIC(2,1),
+  price VARCHAR(10),
+  image_url VARCHAR(255),
   location_id INTEGER NOT NULL,
   FOREIGN KEY (location_id) REFERENCES locations (id)
 );
