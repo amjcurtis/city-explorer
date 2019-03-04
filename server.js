@@ -319,10 +319,9 @@ function getTrails(request, response) {
     })  
 }
 
-// TODO Add function getYelp()
 function getYelp(request, response) {
   // Create query string to check for existence of location in SQL
-  const SQL = `SELECT * FROM yelp WHERE location_id=$1;`;
+  const SQL = `SELECT * FROM yelps WHERE location_id=$1;`;
   const values = [request.query.data.id];
 
   //Query the DB

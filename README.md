@@ -29,6 +29,8 @@ For this project I used the following technologies:
 
 `02-22-2019 9:00am-1:30pm` - Added Meetups, Movie Database, and Hiking Project API integration.
 
+`03-03-2019 10:30pm-12:00am` - Added Yelp Fusion API integration.
+
 ## Credits and Collaborations
 
 I collaborated with Vanessa Wei ([Wei9023](https://github.com/Wei9023)) and Tanner Percival ([Tanner253](https://github.com/Tanner253)) on different portions of this app. 

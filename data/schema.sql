@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS trails (
 
 CREATE TABLE IF NOT EXISTS yelps (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255,)
+  name VARCHAR(255),
   url VARCHAR(255),
   rating NUMERIC(2,1),
   price VARCHAR(10),
